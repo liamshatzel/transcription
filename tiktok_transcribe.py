@@ -18,10 +18,10 @@ class VidSegment():
     time: None = None
     prev_time: None = None
 
-#model = stable_whisper.load_model('base')
-#result = model.transcribe('test.mp4')
-#result.to_srt_vtt('audio.vtt')
-
+model = stable_whisper.load_model('base')
+result = model.transcribe('test.mp4')
+lines = result.to_srt_vtt('audio.vtt')
+print(lines)
 
 lines = []
 with open('audio.vtt') as f:
@@ -36,13 +36,20 @@ clean_lines = clean_lines[1:]
 
 total_time = clean_lines[0]
 total_time = total_time.split('-->')
-
 start_time = datetime.strptime(total_time[0].strip(), '%H:%M:%S.%f')
+
+total_time = clean_lines[len(clean_lines) - 2].split('-->')
 end_time = datetime.strptime(total_time[1].strip(), '%H:%M:%S.%f')
 
 total_time = end_time
 
-tokens = clean_lines[1].split()
+tokens = []
+words = ''
+for line in clean_lines:
+    if line[0] != '0':
+       words += line + ' ' 
+print(words)
+tokens = words.split()
 
 times = []
 for word in tokens:
@@ -77,5 +84,5 @@ for e in times:
     video_clips.append(cur_clip)
 
 final = concatenate_videoclips(video_clips)
-final.write_videofile('captioned.mp4')
+final.write_videofile('captioned.webm')
 

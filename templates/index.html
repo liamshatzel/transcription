@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<style>
+  #upload-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+</style>
+<html>
+  <head>
+    <title>TikTok Caption Generator</title>
+  </head>
+  <body>
+    <p>Upload your video here</p>
+    <form
+      action="{{ url_for('handle_upload') }}"
+      id="upload-form"
+      method="post"
+      enctype="multipart/form-data"
+    >
+      <label for="file">File</label>
+      <input type="file" name="fileToUpload" id="fileToUpload" />
+      <button>Upload</button>
+    </form>
+  </body>
+</html>
