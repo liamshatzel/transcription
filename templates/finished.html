@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<style>
+  div#loading {
+    display: none;
+    cursor: wait;
+    width: 100%;
+  }
+
+  body {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #finished-vid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+</style>
+<link
+  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
+  rel="stylesheet"
+  integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9"
+  crossorigin="anonymous"
+/>
+<script
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+  crossorigin="anonymous"
+></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script type="text/javascript">
+  $(document).ready(function () {
+    $("#submit").on("click", function () {
+      $("#loading").show();
+      $("#content").hide();
+    });
+  });
+</script>
+<html>
+  <head>
+    <title>Video Captioner</title>
+  </head>
+  <body>
+    <h1>Video Captioner</h1>
+    <div id="finished-vid">
+      {% if file %}
+      <video width="320" height="240" controls>
+        <source src="{{ file }}" type="video/mp4" />
+      </video>
+      <div class="mt-3">
+        <button href="{{ file }}" download="download" class="btn btn-primary">
+          Download Video
+        </button>
+      </div>
+      {% endif %}
+    </div>
+    <hr />
+    <a class="btn btn-primary" href="{{ url_for('index') }}"
+      >Caption Another!</a
+    >
+  </body>
+</html>

@@ -37,18 +37,22 @@ app.config.from_pyfile('config.py', silent=True)
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    fonts = TextClip.list('font')
+    fonts = [font for font in fonts if font[0] != '.']
+    return render_template("index.html", fonts=fonts)
 
 
 @app.route("/finished")
 def finished():
     filepath = session.get('filepath')
-    return render_template("index.html", file=filepath)
+    return render_template("finished.html", file=filepath)
 
 
 @app.route("/handle_upload", methods=['POST'])
 def handle_upload():
     uploaded_file = request.files.get('fileToUpload')
+    font = request.form.get('font')
+    color = request.form.get('color')
     filename = secure_filename(uploaded_file.filename)
     if uploaded_file and filename != '':
         file_ext = os.path.splitext(filename)[1].lower()
@@ -58,7 +62,8 @@ def handle_upload():
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 
         uploaded_file.save(filepath)
-        _transcribe(filepath)
+        wordlist = _transcribe(filepath)
+        _insert_vid_text(wordlist, filepath, font, color)
 
         output_file = os.path.join(
             app.config['UPLOAD_FOLDER'], filename.split('.')[0] + '_output.mp4')
@@ -129,12 +134,11 @@ def _transcribe(uploaded_file):
             cur_word = WordObj(
                 word=word_tuple[1], start_time=start_time, end_time=end_time)
         wordlist.append(cur_word)
+    return wordlist
+    # _insert_vid_text(wordlist, uploaded_file)
 
-    _insert_vid_text(wordlist, uploaded_file)
-    return
 
-
-def _insert_vid_text(wordlist, uploaded_file):
+def _insert_vid_text(wordlist, uploaded_file, font, color):
     video_clips = []
     full_duration = VideoFileClip(uploaded_file).duration
     end_time = ''
@@ -151,7 +155,7 @@ def _insert_vid_text(wordlist, uploaded_file):
 
         video = VideoFileClip(uploaded_file).subclip(start_time, end_time)
 
-        text = (TextClip(e.word, fontsize=70, color='white', method='caption')
+        text = (TextClip(e.word, fontsize=70, font=font, color=color, method='caption')
                 .set_position('center')
                 .set_duration(duration))
 
@@ -159,6 +163,5 @@ def _insert_vid_text(wordlist, uploaded_file):
         video_clips.append(cur_clip)
     end_clip = VideoFileClip(uploaded_file).subclip(end_time, full_duration)
     video_clips.append(end_clip)
-
     final = concatenate_videoclips(video_clips)
     final.write_videofile(output_file)
