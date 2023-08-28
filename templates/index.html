@@ -1,36 +1,103 @@
 <!DOCTYPE html>
 <style>
-  #upload-form {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+  div#loading {
+    display: none;
+    cursor: wait;
     width: 100%;
   }
+
+  body {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #finished-vid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
 </style>
+<link
+  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
+  rel="stylesheet"
+  integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9"
+  crossorigin="anonymous"
+/>
+<script
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+  crossorigin="anonymous"
+></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script type="text/javascript">
+  $(document).ready(function () {
+    $("#submit").on("click", function () {
+      $("#loading").show();
+      $("#content").hide();
+    });
+  });
+</script>
 <html>
   <head>
-    <title>TikTok Caption Generator</title>
+    <title>Video Captioner</title>
   </head>
   <body>
-    <p>Upload your video here</p>
-    <form
-      action="{{ url_for('handle_upload') }}"
-      id="upload-form"
-      method="post"
-      enctype="multipart/form-data"
-    >
-      <label for="file">File</label>
-      <input type="file" name="fileToUpload" id="fileToUpload" />
-      <button>Upload</button>
-    </form>
-    <hr />
-    <div>
-      {% if file %}
-      <video width="320" height="240" controls>
-        <source src="{{ file }}" type="video/mp4" />
-      </video>
-      <button href="{{ file }}" download="download">Download Video</button>
-      {% endif %}
+    <h1>Video Captioner</h1>
+    <div id="loading">
+      <p style="width: 100%; text-align: center">This may take a minute...</p>
+      <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status"></div>
+      </div>
+    </div>
+    <div id="content">
+      <form
+        action="{{ url_for('handle_upload') }}"
+        id="upload-form"
+        method="post"
+        enctype="multipart/form-data"
+      >
+        <div class="mb-3">
+          <label for="fileToUpload" class="form-label"
+            >Upload Your Video Here</label
+          >
+          <input
+            type="file"
+            name="fileToUpload"
+            id="fileToUpload"
+            class="form-control"
+          />
+        </div>
+        <button class="btn btn-primary" id="submit">Upload</button>
+      </form>
+      <hr />
+      <div id="finished-vid">
+        {% if file %}
+        <video width="320" height="240" controls>
+          <source src="{{ file }}" type="video/mp4" />
+        </video>
+        <button href="{{ file }}" download="download" class="btn btn-primary">
+          Download Video
+        </button>
+        {% endif %}
+      </div>
     </div>
   </body>
 </html>
