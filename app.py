@@ -37,6 +37,11 @@ app.config.from_pyfile('config.py', silent=True)
 
 @app.route("/")
 def index():
+    return render_template("index.html")
+
+
+@app.route("/finished")
+def finished():
     filepath = session.get('filepath')
     return render_template("index.html", file=filepath)
 
@@ -58,7 +63,7 @@ def handle_upload():
         output_file = os.path.join(
             app.config['UPLOAD_FOLDER'], filename.split('.')[0] + '_output.mp4')
         session['filepath'] = output_file
-        return redirect(url_for('index'))
+        return redirect(url_for('finished'))
     return render_template("index.html")
 
 
