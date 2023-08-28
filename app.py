@@ -151,7 +151,7 @@ def _insert_vid_text(wordlist, uploaded_file):
 
         video = VideoFileClip(uploaded_file).subclip(start_time, end_time)
 
-        text = (TextClip(e.word, fontsize=70, color='white')
+        text = (TextClip(e.word, fontsize=70, color='white', method='caption')
                 .set_position('center')
                 .set_duration(duration))
 
