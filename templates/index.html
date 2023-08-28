@@ -43,7 +43,6 @@
   .column-1 {
     display: flex;
     flex-direction: column;
-    align-items: left;
     justify-content: flex-end;
   }
 
@@ -53,9 +52,21 @@
     align-items: center;
     justify-content: flex-end;
   }
+  .column-3 {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    width: 100%;
+  }
 
   #ex-text {
-    font-family: "Chalkboard-Bold";
+    font-family: "Courier";
+    font-size: 50px;
+    margin: 10px;
+  }
+
+  #text-container {
+    background-color: lightgrey;
   }
 </style>
 <link
@@ -79,6 +90,7 @@
     textChange();
     colorChange();
     pickedVideo();
+    fontSize();
   });
 
   function textChange() {
@@ -96,6 +108,14 @@
   function pickedVideo() {
     $("#fileToUpload").change(function () {
       $("#submit").attr("disabled", false);
+    });
+  }
+
+  function fontSize() {
+    $("#size").change(function () {
+      fontSize = $(this).val();
+      $("#ex-text").css("font-size", fontSize + "px");
+      $("#font-size-label").text("Font Size: " + fontSize + "px");
     });
   }
 </script>
@@ -135,7 +155,7 @@
           <div class="column-1">
             <label for="font">Pick a font:</label>
             <select name="font" class="form-select" id="font">
-              <option selected value="Chalkboard-Bold">Chalkboard Bold</option>
+              <option selected value="Courier">Courier</option>
               {% for font in fonts %}
               <option value="{{ font }}">{{ font | replace('-', ' ')}}</option>
               {% endfor %}
@@ -153,7 +173,18 @@
             />
           </div>
         </div>
-        <div class="m-3">
+        <div class="column-3 mt-2">
+          <label id="font-size-label" for="size">Font Size: 50px</label>
+          <input
+            type="range"
+            class="custom-range"
+            id="size"
+            name="size"
+            step="4"
+          />
+        </div>
+        <hr />
+        <div id="text-container" class="m-3">
           <h5 id="ex-text">Example Text</h5>
         </div>
         <hr />

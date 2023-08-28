@@ -53,6 +53,7 @@ def handle_upload():
     uploaded_file = request.files.get('fileToUpload')
     font = request.form.get('font')
     color = request.form.get('color')
+    font_size = request.form.get('size')
     filename = secure_filename(uploaded_file.filename)
     if uploaded_file and filename != '':
         file_ext = os.path.splitext(filename)[1].lower()
@@ -63,7 +64,7 @@ def handle_upload():
 
         uploaded_file.save(filepath)
         wordlist = _transcribe(filepath)
-        _insert_vid_text(wordlist, filepath, font, color)
+        _insert_vid_text(wordlist, filepath, font, color, font_size)
 
         output_file = os.path.join(
             app.config['UPLOAD_FOLDER'], filename.split('.')[0] + '_output.mp4')
@@ -135,10 +136,9 @@ def _transcribe(uploaded_file):
                 word=word_tuple[1], start_time=start_time, end_time=end_time)
         wordlist.append(cur_word)
     return wordlist
-    # _insert_vid_text(wordlist, uploaded_file)
 
 
-def _insert_vid_text(wordlist, uploaded_file, font, color):
+def _insert_vid_text(wordlist, uploaded_file, font, color, font_size):
     video_clips = []
     full_duration = VideoFileClip(uploaded_file).duration
     end_time = ''
@@ -155,7 +155,7 @@ def _insert_vid_text(wordlist, uploaded_file, font, color):
 
         video = VideoFileClip(uploaded_file).subclip(start_time, end_time)
 
-        text = (TextClip(e.word, fontsize=70, font=font, color=color, method='caption')
+        text = (TextClip(e.word, fontsize=int(font_size), font=font, color=color, method='caption')
                 .set_position('center')
                 .set_duration(duration))
 
