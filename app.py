@@ -1,10 +1,11 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, abort, redirect, url_for, session, send_from_directory
 import stable_whisper
 from moviepy import *
 from moviepy.editor import *
 from datetime import datetime
 from dataclasses import dataclass
 import re
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
@@ -23,19 +24,47 @@ class WordObj:
     end_time: None = None
 
 
+app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['MAX_CONTENT_LENGTH'] = 400 * 1024 * 1024  # (400MB)
+app.config['UPLOAD_EXTENSIONS'] = ['.mp4', '.avi', '.mkv', '.mov']
+
+# default value during development
+app.secret_key = 'dev'
+
+# overridden if this file exists in the instance folder
+app.config.from_pyfile('config.py', silent=True)
+
+
 @app.route("/")
 def index():
-    return render_template("index.html")
+    filepath = session.get('filepath')
+    return render_template("index.html", file=filepath)
 
 
 @app.route("/handle_upload", methods=['POST'])
 def handle_upload():
     uploaded_file = request.files.get('fileToUpload')
-    if uploaded_file and uploaded_file.filename != '':
-        uploaded_file.save(uploaded_file.filename)
-        _transcribe(uploaded_file.filename)
+    filename = secure_filename(uploaded_file.filename)
+    if uploaded_file and filename != '':
+        file_ext = os.path.splitext(filename)[1].lower()
+        if file_ext not in app.config['UPLOAD_EXTENSIONS']:
+            abort(400)
+
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+        uploaded_file.save(filepath)
+        _transcribe(filepath)
+
+        output_file = os.path.join(
+            app.config['UPLOAD_FOLDER'], filename.split('.')[0] + '_output.mp4')
+        session['filepath'] = output_file
         return redirect(url_for('index'))
     return render_template("index.html")
+
+
+@app.route('/uploads/<filename>')
+def upload(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
 def _transcribe(uploaded_file):
@@ -96,11 +125,11 @@ def _transcribe(uploaded_file):
                 word=word_tuple[1], start_time=start_time, end_time=end_time)
         wordlist.append(cur_word)
 
-    insert_vid_text(wordlist, uploaded_file)
+    _insert_vid_text(wordlist, uploaded_file)
     return
 
 
-def insert_vid_text(wordlist, uploaded_file):
+def _insert_vid_text(wordlist, uploaded_file):
     video_clips = []
     full_duration = VideoFileClip(uploaded_file).duration
     end_time = ''
@@ -111,6 +140,9 @@ def insert_vid_text(wordlist, uploaded_file):
         start_time = float(datetime.strftime(e.start_time, '%S.%f'))
         end_time = float(datetime.strftime(e.end_time, '%S.%f'))
         duration = end_time - start_time
+        # todo: fix
+        if duration > 0.8:
+            duration = 0.8
 
         video = VideoFileClip(uploaded_file).subclip(start_time, end_time)
 

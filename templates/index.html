@@ -23,5 +23,14 @@
       <input type="file" name="fileToUpload" id="fileToUpload" />
       <button>Upload</button>
     </form>
+    <hr />
+    <div>
+      {% if file %}
+      <video width="320" height="240" controls>
+        <source src="{{ file }}" type="video/mp4" />
+      </video>
+      <button href="{{ file }}" download="download">Download Video</button>
+      {% endif %}
+    </div>
   </body>
 </html>
