@@ -162,6 +162,8 @@ def _insert_vid_text(wordlist, uploaded_file, font, color, font_size):
         cur_clip = CompositeVideoClip([video, text])
         video_clips.append(cur_clip)
     end_clip = VideoFileClip(uploaded_file).subclip(end_time, full_duration)
-    video_clips.append(end_clip)
+    if end_clip:
+        video_clips.append(end_clip)
+
     final = concatenate_videoclips(video_clips)
     final.write_videofile(output_file)
